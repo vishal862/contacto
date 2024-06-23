@@ -2,11 +2,14 @@ import mongoose from "mongoose";
 import express from "express";
 import dotenv from "dotenv";
 import authRoute from "./routes/auth.routes.js"
+import contactRoute from "./routes/contact.routes.js"
+import cookieParser from 'cookie-parser'
 
 dotenv.config();
 
 const app = express();
 app.use(express.json())
+app.use(cookieParser());
 
 mongoose
   .connect(process.env.MONGO_URl)
@@ -14,7 +17,7 @@ mongoose
     console.log("mongodb connected!");
   })
   .catch((error) => {
-    console.log("failed to connect");
+    console.log(error,"failed to connect");
   });
 
 app.listen(3500, () => {
@@ -22,6 +25,7 @@ app.listen(3500, () => {
 });
 
 app.use("/api/auth",authRoute);
+app.use("/api/contact",contactRoute)
 
 app.use((err,req,res,next)=>{
     const statusCode = err.statusCode || 500;
