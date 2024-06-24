@@ -10,7 +10,7 @@ export const createContact = async (req, res, next) => {
       return next(errorHandler(400, "all fields are required!"));
     }
 
-    const encryptedName = encrypt(name.trim().replace(/\s+/g, ''));
+    const encryptedName = encrypt(name.trim().toLowerCase());
     const encryptedPhone = encrypt(phone.toString());
     const encryptedEmail = encrypt(email);
     const encryptedLinkedin = encrypt(linkedin);
@@ -41,39 +41,59 @@ export const editContact = async (req, res, next) => {
     return next(errorHandler(404, "contact not found"));
   }
 
-  const updatedContact = await Contact.findByIdAndUpdate(contact[0]._id,{
-    $set : {
-        name : encrypt(name),
-        email : encrypt(email),
-        phone : encrypt(phone).toString(),
-        linkedin : encrypt(linkedin),
-        twitter : encrypt(twitter)
-    }
-  },{new : true})
+  const updatedContact = await Contact.findByIdAndUpdate(
+    contact[0]._id,
+    {
+      $set: {
+        name: encrypt(name),
+        email: encrypt(email),
+        phone: encrypt(phone).toString(),
+        linkedin: encrypt(linkedin),
+        twitter: encrypt(twitter),
+      },
+    },
+    { new: true }
+  );
 
   return res.status(200).json(updatedContact);
 };
 
-export const searchContact = async (req,res,next)=>{
-    const {search_token} = req.body;
+export const searchContact = async (req, res, next) => {
+  const { search_token } = req.body;
 
-    if(!search_token){
-        return next(errorHandler(404,"search token required"))
-    }
+  if (!search_token) {
+    return next(errorHandler(404, "Search token required"));
+  }
 
+  const newToken = search_token.trim().replace(/\s+/g, "").toLowerCase();
+
+  try {
     const contacts = await Contact.find();
 
-    const matchedContact = contacts.filter((contact)=>decrypt(contact.name).includes(search_token));
+    const matchedContacts = contacts.filter((contact) => {
+      const decryptedName = decrypt(contact.name).toLowerCase();
 
-    console.log(matchedContact);
+      return decryptedName.includes(newToken);
+    });
 
-    const decryptedSearchToken = matchedContact.map((contact)=>decrypt(contact.name));
+    console.log(matchedContacts);
 
-    console.log(decryptedSearchToken);
-
-    if(!matchedContact){
-        return next(errorHandler(404,'user not found'))
+    if (matchedContacts.length === 0) {
+      return next(errorHandler(404, "User not found"));
     }
 
-    return res.status(200).json({decryptedSearchToken})
-}
+    const decryptedSearchResults = matchedContacts.map((contact) => ({
+      name: decrypt(contact.name),
+      email: decrypt(contact.email),
+      linkedin: decrypt(contact.linkedin),
+      phone: decrypt(contact.phone),
+      twitter : decrypt(contact.twitter)
+    }));
+
+    console.log(decryptedSearchResults);
+
+    return res.status(200).json({ decryptedSearchResults });
+  } catch (error) {
+    return next(error);
+  }
+};

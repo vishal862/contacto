@@ -47,7 +47,7 @@ export const login = async (req,res,next)=>{
             return next(errorHandler(404,'user not found!'))
         }
     
-        const decodedPassword = bcryptjs.compareSync(password,validUser.password);
+        const decodedPassword = await bcryptjs.compare(password,validUser.password);
     
         if(!decodedPassword){
             return next(errorHandler(400,'wrong password'));
