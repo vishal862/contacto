@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import authRoute from "./routes/auth.routes.js"
 import contactRoute from "./routes/contact.routes.js"
+import testRoute from "./routes/test.routes.js"
 import cookieParser from 'cookie-parser'
 
 dotenv.config();
@@ -24,6 +25,7 @@ app.listen(3500, () => {
   console.log("app is listening on port 3500");
 });
 
+app.use("/api/",testRoute)
 app.use("/api/auth",authRoute);
 app.use("/api/contact",contactRoute)
 
