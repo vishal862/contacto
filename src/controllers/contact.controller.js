@@ -102,7 +102,7 @@ export const contactData = async (req,res,next) =>{
 
   const query = req.query.name;
   try {
-    const contacts = await Contact.find({});
+    const contacts = await Contact.find().maxTimeMS(30000);;
   
     const queryContacts = contacts.filter((contact)=>{
       const decryptedToken = decrypt(contact.name);
