@@ -14,10 +14,7 @@ app.use(cookieParser());
 
 try {
   mongoose
-    .connect(process.env.MONGO_URl,{
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
+    .connect(process.env.MONGO_URL)
     .then(() => {
       console.log("mongodb connected!");
     })
