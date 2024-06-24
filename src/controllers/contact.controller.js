@@ -99,22 +99,28 @@ export const searchContact = async (req, res, next) => {
 };
 
 export const contactData = async (req,res,next) =>{
-  const contacts = await Contact.find();
 
-  const queryContacts = contacts.filter((contact)=>{
-    const decryptedToken = decrypt(contact.name);
-
-    return decryptedToken.includes(req.query.name);
-  })
+  const query = req.query.name;
+  try {
+    const contacts = await Contact.find();
   
-
-  const queryContactsApi = queryContacts.map((contact) => ({
-    name: decrypt(contact.name),
-    email: decrypt(contact.email),
-    linkedin: decrypt(contact.linkedin),
-    phone: decrypt(contact.phone),
-    twitter : decrypt(contact.twitter)
-  }));
-
-  return res.json({queryContactsApi});
+    const queryContacts = contacts.filter((contact)=>{
+      const decryptedToken = decrypt(contact.name);
+  
+      return decryptedToken.includes(query);
+    })
+    
+  
+    const queryContactsApi = queryContacts.map((contact) => ({
+      name: decrypt(contact.name),
+      email: decrypt(contact.email),
+      linkedin: decrypt(contact.linkedin),
+      phone: decrypt(contact.phone),
+      twitter : decrypt(contact.twitter)
+    }));
+  
+    return res.json({queryContactsApi});
+  } catch (error) {
+    next(error)
+  }
 }
