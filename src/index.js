@@ -12,14 +12,18 @@ const app = express();
 app.use(express.json())
 app.use(cookieParser());
 
-mongoose
-  .connect(process.env.MONGO_URl)
-  .then(() => {
-    console.log("mongodb connected!");
-  })
-  .catch((error) => {
-    console.log(error,"failed to connect");
-  });
+try {
+  mongoose
+    .connect(process.env.MONGO_URl)
+    .then(() => {
+      console.log("mongodb connected!");
+    })
+    .catch((error) => {
+      console.log(error,"failed to connect");
+    });
+} catch (error) {
+  console.log(error);
+}
 
 app.listen(3500, () => {
   console.log("app is listening on port 3500");
